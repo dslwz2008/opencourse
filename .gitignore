@@ -37,3 +37,5 @@
 
 # Intermediate Files
 ipch
+*.sdf
+Debug
