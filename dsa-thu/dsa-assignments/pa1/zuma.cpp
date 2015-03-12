@@ -1,7 +1,12 @@
 #include <stdio.h>
+#include <string.h>
 
 typedef int Rank; //秩
 #define ListNodePosi(T) ListNode<T>* //列表节点位置
+
+void print_data(char data){
+	printf("%c", data);
+}
 
 template <typename T> struct ListNode { //列表节点模板类（以双向链表形式实现）
 	// 成员
@@ -51,39 +56,132 @@ public:
 	// 只读访问接口
 	Rank size() const { return _size; } //规模
 	bool empty() const { return _size <= 0; } //判空
+	ListNodePosi(T) first() const { return header->succ; } //首节点位置
+	ListNodePosi(T) last() const { return trailer->pred; } //末节点位置
 	// 可写访问接口
-	ListNodePosi(T) insertAsFirst ( T const& e ); //将e当作首节点插入
-	ListNodePosi(T) insertAsLast ( T const& e ); //将e当作末节点插入
-	ListNodePosi(T) insertA ( ListNodePosi(T) p, T const& e ); //将e当作p的后继插入
-	ListNodePosi(T) insertB ( ListNodePosi(T) p, T const& e ); //将e当作p的前驱插入
-	T remove ( ListNodePosi(T) p ); //删除合法位置p处的节点,返回被删除节点
+	ListNodePosi(T) insertAsFirst ( T const& e ) //将e当作首节点插入
+	{  _size++; return header->insertAsSucc ( e );  }
+	ListNodePosi(T) insertAsLast ( T const& e ) //将e当作末节点插入
+	{  _size++; return trailer->insertAsPred ( e );  }
+	ListNodePosi(T) insertA ( ListNodePosi(T) p, T const& e )
+	{  _size++; return p->insertAsSucc ( e );  } //将e当作p的后继插入
+	ListNodePosi(T) insertB ( ListNodePosi(T) p, T const& e )
+	{  _size++; return p->insertAsPred ( e );  }//将e当作p的前驱插入
+	ListNodePosi(T) insertAt ( Rank rank, T const& e)
+	{
+		Rank idx = 0;
+		ListNodePosi(T) p = NULL;
+		if (empty())
+		{
+			p = header;
+		}
+		else
+		{
+			p = first();
+		}
+		
+		while (idx < rank && p != NULL)
+		{
+			p = p->succ; idx++;
+		}		
+		_size++; 
+		return p->insertAsPred ( e );  
+	} //将e当作p的后继插入
+
+	T remove ( ListNodePosi(T) p )//删除合法节点p，返回其数值
+	{ 
+		T e = p->data; //备份待删除节点的数值（假定T类型可直接赋值）
+		p->pred->succ = p->succ; p->succ->pred = p->pred; //后继、前驱
+		delete p; p = NULL; _size--; //释放节点，更新规模
+		return e; //返回备份的数值
+	}
+
+	// 遍历
+	void traverse ( void (* visit) ( T& ) )
+	{  for ( ListNodePosi(T) p = header->succ; p != trailer; p = p->succ ) visit ( p->data );  }
+	template <typename VST> //操作器
+	void traverse ( VST& visit)
+	{  for ( ListNodePosi(T) p = header->succ; p != trailer; p = p->succ ) visit ( p->data );  }
 }; //List
+
+bool check(ListNodePosi(char) node, ListNodePosi(char) *from, ListNodePosi(char) *to){
+	ListNodePosi(char) curr = node;
+	int x = 0, y = 0;
+	while (curr->pred != NULL && curr->pred->data == node->data)
+	{
+		x++;
+		curr = curr->pred;
+	}
+	*from = curr;
+	curr = node;
+	while (curr->succ != NULL && curr->succ->data == node->data)
+	{
+		y++;
+		curr = curr->succ;
+	}
+	*to = curr->succ;//指向第一个变化的元素
+	return x + y >= 2;
+}
 
 int main(){
 
 #ifndef _OJ_
 	freopen("input_zuma.txt", "r", stdin);
-	freopen("output_zuma.txt", "w", stdout);
+	//freopen("output_zuma.txt", "w", stdout);
 #endif
 
-	////read
-	//uint n = 0, m = 0;
-	//scanf("%d %d", &n, &m);
-	//uint *A = new uint[n];
-	//for (uint i = 0; i < n; i++)
-	//{
-	//	scanf("%d", &A[i]);
-	//}
-	//quick_sort(A, n);
-	//uint *M = new uint[2*m];
-	//for (uint i = 0; i < 2*m; i+=2)
-	//{
-	//	scanf("%d %d", &M[i], &M[i+1]);
-	//	if (M[i] > M[i+1])
-	//	{
-	//		swap(&M[i], &M[i+1]);
-	//	}
-	//}
+	//read
+	int n = 0;
+	char s[10001];
+	scanf("%s", &s);
+	int length = strlen(s);
+	List<char> list;
+	ListNodePosi(char) cur = list.insertAsFirst(s[0]);
+	for (int i = 1; i < length; i++)
+	{
+		cur = list.insertA(cur, s[i]);
+	}
+
+	//print list
+	if (list.empty())
+	{
+		printf("-");
+	}
+	else
+	{
+		list.traverse(print_data);
+	}
+	printf("\n");
+
+	scanf("%d", &n);
+	for (int i = 0; i < n; i++)
+	{
+		int pos = -1;
+		char c = '\0';
+		scanf("%d %c", &pos, &c);
+		//printf("%d %c", pos, c);
+		ListNodePosi(char) node = list.insertAt(pos, c);
+		ListNodePosi(char) from = NULL; ListNodePosi(char) to = NULL;
+		while (check(node, &from, &to))
+		{
+			while (from != to)
+			{
+				from = from->succ;
+				list.remove(from->pred);
+			}
+			node = from;
+		}
+		//print list
+		if (list.empty())
+		{
+			printf("-");
+		}
+		else
+		{
+			list.traverse(print_data);
+		}
+		printf("\n");
+	}
 
 	////compute
 	//for (uint i = 0; i < 2*m; i+=2)
