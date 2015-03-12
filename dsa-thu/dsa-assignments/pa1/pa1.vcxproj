@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lighthouse.cpp" />
     <ClCompile Include="range.cpp" />
     <ClCompile Include="zuma.cpp" />
   </ItemGroup>
