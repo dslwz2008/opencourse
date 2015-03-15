@@ -4,42 +4,100 @@
 
 typedef unsigned int uint;
 
+uint counter = 0;
+
+void swap(uint * a, uint * b) {
+	uint tmp = * a;
+	* a = * b;
+	* b = tmp;
+}
+
+uint partition(uint * ary, uint * ary2, uint len, uint pivot_i) {
+	uint i = 0;
+	uint small_len = pivot_i;
+	uint pivot = ary[pivot_i];
+	swap(&ary[pivot_i], &ary[pivot_i + (len - 1)]);
+	swap(&ary2[pivot_i], &ary2[pivot_i + (len - 1)]);
+	for (; i < len; i++) {
+		if (ary[pivot_i + i] < pivot) {
+			swap(&ary[pivot_i + i], &ary[small_len]);
+			swap(&ary2[pivot_i + i], &ary2[small_len]);
+			small_len++;
+		}
+	}
+	swap(&ary[pivot_i + (len - 1)], &ary[small_len]);
+	swap(&ary2[pivot_i + (len - 1)], &ary2[small_len]);
+	return small_len;
+}
+
+void quick_sort(uint * ary, uint * ary2, uint len) {
+	if (len == 0 || len == 1) 
+		return;
+
+	uint small_len = partition(ary, ary2, len, 0);
+	quick_sort(ary, ary2, small_len);
+	quick_sort(&ary[small_len + 1], &ary2[small_len + 1], len - small_len - 1);
+}
+
 void merge(uint *arr, uint lo, uint mi, uint hi)
 {
 	uint *A = arr + lo;
 	//辅助数组空间
 	int lb = mi - lo;
-	uint *B = new uint[lb];
+	uint *B = new uint[lb];//前向量
 	for (uint i = 0; i < lb; i++)
 	{
 		B[i] = A[i];
 	}
 
 	int lc = hi - mi;
-	uint *C = arr + mi;
+	uint *C = arr + mi;//后向量
 	uint i = 0, j = 0, k = 0;
 	while((j < lb) || (k < lc)){
 		if ((j < lb) && (!(k < lc) || B[j] <= C[k]))
 		{
 			A[i++] = B[j++];
 		}
-		if ((k < lc) && (!(j < lb) || C[k] < B[j]))
-		{
-			A[i++] = C[k++];
+		if ((k < lc)){
+			if(!(j < lb))
+			{
+				A[i++] = C[k++];
+			}else if(C[k] < B[j])
+			{
+				A[i++] = C[k++];
+				counter++;
+			}
 		}
 	}
 }
 
-void mergeSort(uint *arr, uint lo, uint hi)
+void merge_sort(uint *arr, uint lo, uint hi)
 {
 	if (hi - lo < 2)
 	{
 		return;
 	}
 	uint mi = (lo+hi)>>1;
-	mergeSort(arr, lo, mi);
-	mergeSort(arr, mi, hi);
+	merge_sort(arr, lo, mi);
+	merge_sort(arr, mi, hi);
 	merge(arr, lo, mi, hi);
+}
+
+void inverse_pair(uint *A, uint x, uint y, uint* cnt, uint *T) {
+	if(y - x > 1) {
+		uint m = x + (y - x) / 2;     //划分
+		uint p = x, q = m, i = x;
+		inverse_pair(A, x, m, cnt, T);      //递归求解
+		inverse_pair(A, m, y, cnt, T);      //递归求解
+		while(p < m || q < y) {
+			if(q >= y || (p < m && A[p] <= A[q])) T[i++] = A[p++];   //从左半数组复制到临时空间
+			else {
+				T[i++] = A[q++];    //从右半数组复制到临时空间
+				*cnt += m-p;  //更新累加器
+			}
+		}
+		for(i = x; i < y; ++i) A[i] = T[i];   //从辅助空间复制回A数组
+	}
 }
 
 int main(){
@@ -53,22 +111,30 @@ int main(){
 	scanf("%d", &n);
 	uint *x = new uint[n];
 	uint *y = new uint[n];
+	uint *t = new uint[n];
 	for (uint i = 0; i < n; i++)
 	{
 		scanf("%d %d", &x[i], &y[i]);
 		//printf("%d %d\n", x[i], y[i]);
 	}
-	uint T[10]={1324,61576,7,88,245,236,77,9876,567,666};
-	uint AUX[10]={0,1,2,3,4,5,6,7,8,9};
-	mergeSort(T, 0, 10);
-	for (uint i = 0; i < 10; i++)
-	{
-		printf("%d \t", T[i]);
-	}
-	uint counter = 0;
-	//
-
-	printf("%d\n", counter);
+	//uint T[10]={1324,61576,7,88,245,236,77,9876,567,666};
+	//uint AUX[10]={0,1,2,3,4,5,6,7,8,9};
+	//mergeSort(T, 0, 10);
+	quick_sort(x, y, n);
+	//for (uint i = 0; i < 10; i++)
+	//{
+	//	printf("%d \t", x[i]);
+	//}
+	//printf("\n");
+	//for (uint i = 0; i < 10; i++)
+	//{
+	//	printf("%d \t", y[i]);
+	//}
+	//merge_sort(y, 0, n);
+	uint cnt = 0;
+	inverse_pair(y, 0, n, &cnt, t);
+	uint result = n * (n-1) / 2 - cnt;
+	printf("%d\n", result );
 	fclose(stdin);
 	//fclose(stdout);
 	return 0;
