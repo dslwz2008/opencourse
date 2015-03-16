@@ -2,20 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef unsigned int uint;
+typedef unsigned long long ulint;
 
-uint counter = 0;
-
-void swap(uint * a, uint * b) {
-	uint tmp = * a;
+void swap(ulint * a, ulint * b) {
+	ulint tmp = * a;
 	* a = * b;
 	* b = tmp;
 }
 
-uint partition(uint * ary, uint * ary2, uint len, uint pivot_i) {
-	uint i = 0;
-	uint small_len = pivot_i;
-	uint pivot = ary[pivot_i];
+ulint partition(ulint * ary, ulint * ary2, ulint len, ulint pivot_i) {
+	ulint i = 0;
+	ulint small_len = pivot_i;
+	ulint pivot = ary[pivot_i];
 	swap(&ary[pivot_i], &ary[pivot_i + (len - 1)]);
 	swap(&ary2[pivot_i], &ary2[pivot_i + (len - 1)]);
 	for (; i < len; i++) {
@@ -30,63 +28,63 @@ uint partition(uint * ary, uint * ary2, uint len, uint pivot_i) {
 	return small_len;
 }
 
-void quick_sort(uint * ary, uint * ary2, uint len) {
+void quick_sort(ulint * ary, ulint * ary2, ulint len) {
 	if (len == 0 || len == 1) 
 		return;
 
-	uint small_len = partition(ary, ary2, len, 0);
+	ulint small_len = partition(ary, ary2, len, 0);
 	quick_sort(ary, ary2, small_len);
 	quick_sort(&ary[small_len + 1], &ary2[small_len + 1], len - small_len - 1);
 }
 
-void merge(uint *arr, uint lo, uint mi, uint hi)
-{
-	uint *A = arr + lo;
-	//辅助数组空间
-	int lb = mi - lo;
-	uint *B = new uint[lb];//前向量
-	for (uint i = 0; i < lb; i++)
-	{
-		B[i] = A[i];
-	}
+//void merge(ulint *arr, ulint lo, ulint mi, ulint hi)
+//{
+//	ulint *A = arr + lo;
+//	//辅助数组空间
+//	int lb = mi - lo;
+//	ulint *B = new ulint[lb];//前向量
+//	for (ulint i = 0; i < lb; i++)
+//	{
+//		B[i] = A[i];
+//	}
+//
+//	int lc = hi - mi;
+//	ulint *C = arr + mi;//后向量
+//	ulint i = 0, j = 0, k = 0;
+//	while((j < lb) || (k < lc)){
+//		if ((j < lb) && (!(k < lc) || B[j] <= C[k]))
+//		{
+//			A[i++] = B[j++];
+//		}
+//		if ((k < lc)){
+//			if(!(j < lb))
+//			{
+//				A[i++] = C[k++];
+//			}else if(C[k] < B[j])
+//			{
+//				A[i++] = C[k++];
+//				counter++;
+//			}
+//		}
+//	}
+//}
+//
+//void merge_sort(ulint *arr, ulint lo, ulint hi)
+//{
+//	if (hi - lo < 2)
+//	{
+//		return;
+//	}
+//	ulint mi = (lo+hi)>>1;
+//	merge_sort(arr, lo, mi);
+//	merge_sort(arr, mi, hi);
+//	merge(arr, lo, mi, hi);
+//}
 
-	int lc = hi - mi;
-	uint *C = arr + mi;//后向量
-	uint i = 0, j = 0, k = 0;
-	while((j < lb) || (k < lc)){
-		if ((j < lb) && (!(k < lc) || B[j] <= C[k]))
-		{
-			A[i++] = B[j++];
-		}
-		if ((k < lc)){
-			if(!(j < lb))
-			{
-				A[i++] = C[k++];
-			}else if(C[k] < B[j])
-			{
-				A[i++] = C[k++];
-				counter++;
-			}
-		}
-	}
-}
-
-void merge_sort(uint *arr, uint lo, uint hi)
-{
-	if (hi - lo < 2)
-	{
-		return;
-	}
-	uint mi = (lo+hi)>>1;
-	merge_sort(arr, lo, mi);
-	merge_sort(arr, mi, hi);
-	merge(arr, lo, mi, hi);
-}
-
-void inverse_pair(uint *A, uint x, uint y, uint* cnt, uint *T) {
+void inverse_pair(ulint *A, ulint x, ulint y, ulint* cnt, ulint *T) {
 	if(y - x > 1) {
-		uint m = x + (y - x) / 2;     //划分
-		uint p = x, q = m, i = x;
+		ulint m = x + (y - x) / 2;     //划分
+		ulint p = x, q = m, i = x;
 		inverse_pair(A, x, m, cnt, T);      //递归求解
 		inverse_pair(A, m, y, cnt, T);      //递归求解
 		while(p < m || q < y) {
@@ -106,15 +104,15 @@ int main(){
 	freopen("input_lh.txt", "r", stdin);
 	//freopen("output_lh.txt", "w", stdout);
 #endif
-
-	uint n;
-	scanf("%d", &n);
-	uint *x = new uint[n];
-	uint *y = new uint[n];
-	uint *t = new uint[n];
-	for (uint i = 0; i < n; i++)
+	//printf("%d\n",sizeof(unsigned long long));
+	ulint n;
+	scanf("%llu", &n);
+	ulint *x = new ulint[n];
+	ulint *y = new ulint[n];
+	ulint *t = new ulint[n];
+	for (ulint i = 0; i < n; i++)
 	{
-		scanf("%d %d", &x[i], &y[i]);
+		scanf("%llu %llu", &x[i], &y[i]);
 		//printf("%d %d\n", x[i], y[i]);
 	}
 	//uint T[10]={1324,61576,7,88,245,236,77,9876,567,666};
@@ -131,11 +129,11 @@ int main(){
 	//	printf("%d \t", y[i]);
 	//}
 	//merge_sort(y, 0, n);
-	uint cnt = 0;
+	ulint cnt = 0;
 	inverse_pair(y, 0, n, &cnt, t);
-	uint result = n * (n-1) / 2 - cnt;
-	printf("%d\n", result );
-	fclose(stdin);
+	ulint result = n * (n-1) / 2 - cnt;
+	printf("%llu\n", result );
+	//fclose(stdin);
 	//fclose(stdout);
 	return 0;
 }
