@@ -11,8 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="company.cpp" />
     <ClCompile Include="lighthouse.cpp" />
     <ClCompile Include="range.cpp" />
+    <ClCompile Include="team.cpp" />
     <ClCompile Include="zuma.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
