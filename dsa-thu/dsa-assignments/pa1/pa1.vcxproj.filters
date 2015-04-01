@@ -36,8 +36,5 @@
     <ClCompile Include="interview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="circularlinklist.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

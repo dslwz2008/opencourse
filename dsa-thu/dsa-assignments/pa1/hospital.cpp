@@ -2,80 +2,71 @@
 #include <stdlib.h>
 #include <memory.h>
 
-typedef unsigned int uint;
+#define NUM 32767
 
 int main(){
 	#ifndef _OJ_
-		freopen("input_company.txt", "r", stdin);
+		freopen("input_hospital.txt", "r", stdin);
 		//freopen("output_team.txt", "w", stdout);
 	#endif
-	//printf("%d",sizeof(uint));
-	uint n = 0, m = 0;
-	scanf("%u %u\n",&n,&m);
-	char *action = new char[m];
-	uint *staff = new uint[m];
-	uint *code = new uint[m];
-	uint i;
-	for (i=0; i < m; i++)
+	
+	int n = 0;
+	scanf("%d", &n);
+	//int *pos = new int[NUM];
+	//memset(pos,0,sizeof(int));
+	int *wgt = new int[NUM];
+	memset(wgt,0,sizeof(int)*NUM);
+	for (int i = 0; i < n; i++)
 	{
-		scanf("%c", &action[i]);
-		switch (action[i])
-		{
-		case 'I':
-			scanf("%u %u", &staff[i],&code[i]);
-			break;
-		case 'O':
-		case 'Q':
-			scanf("%u", &staff[i]);
-			code[i] = 0;
-			break;
-		case 'C':
-		case 'N':
-			staff[i]=code[i]=0;
-			break;
-		default:
-			break;
-		}
-		getchar();
+		int p,w;
+		scanf("%d %d", &p, &w);
+		wgt[p]+=w;
 	}
-
-	uint *states = new uint[n];
-	memset(states, -1, sizeof(uint)*n);
-	uint result = 0,working = 0;
-	for(i = 0; i < m; i++)
+	
+	bool first = true;
+	int minPos = 0, minWgt = 0;
+	for (int i = 0; i < NUM; i++)
 	{
-		char c = action[i];
-		switch(c)
+		if (wgt[i]==0)
 		{
-		case 'I':
-			if (states[staff[i]-1] == -1)//first time
+			continue;
+		}
+
+		if (first){
+			minPos = i;
+			first = false;
+		}
+		
+		int newPos = i;
+		int newWgt = wgt[i];
+		int d = newPos - minPos;
+		d = d>0?d:-d;
+		minWgt+=d*newWgt;
+
+		//计算newpos到各点的最小代价
+		int testPos = i, testWgt = 0;
+		for (int j = i-1; j >= 0; j--)
+		{
+			if (wgt[j]==0)
 			{
-				working++;
+				continue;
 			}
-			states[staff[i]-1]=code[i];
-			break;
-		case 'O':
-			if (states[staff[i]-1] != -1)
-			{
-				working--;
-			}
-			states[staff[i]-1]=-1;
-			break;
-		case 'C':
-			memset(states, -1, sizeof(int)*n);
-			working = 0;
-			break;
-		case 'Q':
-			result += states[staff[i]-1];
-			break;
-		case 'N':
-			result += working;
-		default:
-			break;
+			int frontPos = j;
+			int frontWgt = wgt[j];
+			int d = testPos - frontPos;
+			d = d>0?d:-d;
+			testWgt+=d*frontWgt;
+		}
+		
+		if (testWgt <minWgt || 
+			(testWgt == minWgt && testPos<minPos))
+		{
+			minWgt=testWgt;
+			minPos=testPos;
 		}
 	}
 
-	printf("%d",result);
+	printf("%d\n%d",minPos,minWgt);
 	//fclose(stdin);
 	//fclose(stdout);
 	return 0;
