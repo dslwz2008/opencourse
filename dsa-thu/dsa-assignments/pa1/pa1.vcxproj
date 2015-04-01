@@ -11,7 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="circularlinklist.cpp" />
     <ClCompile Include="company.cpp" />
+    <ClCompile Include="hospital.cpp" />
+    <ClCompile Include="interview.cpp" />
     <ClCompile Include="lighthouse.cpp" />
     <ClCompile Include="range.cpp" />
     <ClCompile Include="team.cpp" />
