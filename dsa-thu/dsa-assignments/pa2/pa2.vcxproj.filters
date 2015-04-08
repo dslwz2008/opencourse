@@ -24,5 +24,11 @@
     <ClCompile Include="alarm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="train2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="queap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

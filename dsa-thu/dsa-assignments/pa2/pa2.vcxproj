@@ -75,7 +75,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="alarm.cpp" />
+    <ClCompile Include="queap.cpp" />
     <ClCompile Include="train.cpp" />
+    <ClCompile Include="train2.cpp" />
     <ClCompile Include="tunel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
