@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="alarm.cpp" />
     <ClCompile Include="train.cpp" />
     <ClCompile Include="tunel.cpp" />
   </ItemGroup>
