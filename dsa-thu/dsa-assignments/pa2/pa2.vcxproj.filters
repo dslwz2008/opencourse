@@ -30,5 +30,11 @@
     <ClCompile Include="queap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rebuild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rebuild2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
