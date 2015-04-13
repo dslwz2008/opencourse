@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bigint.cpp" />
     <ClCompile Include="company.cpp" />
     <ClCompile Include="hospital.cpp" />
     <ClCompile Include="interview.cpp" />

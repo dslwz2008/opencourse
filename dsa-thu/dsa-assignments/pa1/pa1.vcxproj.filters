@@ -36,5 +36,8 @@
     <ClCompile Include="interview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bigint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
