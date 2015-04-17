@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pa2", "pa2\pa2.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pa3", "pa3\pa3.vcxproj", "{D8B223EF-3707-41A0-B241-9E06A8A77A7D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataStructure", "DataStructure\DataStructure.vcxproj", "{239EE009-8C18-4A75-AB25-FC9A71C3DAC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{D8B223EF-3707-41A0-B241-9E06A8A77A7D}.Debug|Win32.Build.0 = Debug|Win32
 		{D8B223EF-3707-41A0-B241-9E06A8A77A7D}.Release|Win32.ActiveCfg = Release|Win32
 		{D8B223EF-3707-41A0-B241-9E06A8A77A7D}.Release|Win32.Build.0 = Release|Win32
+		{239EE009-8C18-4A75-AB25-FC9A71C3DAC6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{239EE009-8C18-4A75-AB25-FC9A71C3DAC6}.Debug|Win32.Build.0 = Debug|Win32
+		{239EE009-8C18-4A75-AB25-FC9A71C3DAC6}.Release|Win32.ActiveCfg = Release|Win32
+		{239EE009-8C18-4A75-AB25-FC9A71C3DAC6}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
