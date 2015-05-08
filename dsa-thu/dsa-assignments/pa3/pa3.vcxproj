@@ -10,6 +10,10 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tsort.cpp" />
+    <ClCompile Include="tsp.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D8B223EF-3707-41A0-B241-9E06A8A77A7D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
