@@ -93,7 +93,6 @@ private:
 	}
 #undef hca
 
-	bool TSort ( int, int&, Stack<Tv>* ); //（连通域）基于DFS的拓扑排序算法
 	template <typename PU> void PFS ( int, PU ); //（连通域）优先级搜索框架
 
 public:
@@ -154,8 +153,26 @@ public:
 		while ( s != ( v = ( ++v % n ) ) );
 	}
 
-	
-	Stack<Tv>* tSort ( int ); //基于DFS的拓扑排序算法
+	bool TSort ( int v, int& clock, Stack<Tv>* S ) { //assert: 0 <= v < n
+		dTime ( v ) = ++clock; status ( v ) = DISCOVERED; //发现顶点v
+		for ( int u = firstNbr ( v ); -1 < u; u = nextNbr ( v, u ) ) //枚举v的所有邻居u
+			switch ( status ( u ) ) { //并视u的状态分别处理
+			case UNDISCOVERED:
+				parent ( u ) = v; type ( v, u ) = TREE;
+				if ( !TSort ( u, clock, S ) ) //从顶点u处出发深入搜索
+					return false; //若u及其后代不能拓扑排序（则全图亦必如此），故返回并报告
+				break;
+			case DISCOVERED:
+				type ( v, u ) = BACKWARD; //一旦发现后向边（非DAG），则
+				return false; //不必深入，故返回并报告
+			default: //VISITED (digraphs only)
+				type ( v, u ) = ( dTime ( v ) < dTime ( u ) ) ? FORWARD : CROSS;
+				break;
+		}
+		status ( v ) = VISITED; S->push ( vertex ( v ) ); //顶点被标记为VISITED时，随即入栈
+		return true; //v及其后代可以拓扑排序
+	}
+
 	void prim ( int ); //最小支撑树Prim算法
 	void dijkstra ( int ); //最短路径Dijkstra算法
 	template <typename PU> void pfs ( int, PU ); //优先级搜索框架
