@@ -1,20 +1,18 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 //
-////fast io
-//const int SZ = 1<<20;
-//struct fastio{
-//	char inbuf[SZ];
-//	char outbuf[SZ];
-//	fastio(){
-//		setvbuf(stdin,inbuf,_IOFBF,SZ);
-//		setvbuf(stdout,outbuf,_IOFBF,SZ);
-//	}
-//}io;
+//////fast io
+////const int SZ = 1<<20;
+////struct fastio{
+////	char inbuf[SZ];
+////	char outbuf[SZ];
+////	fastio(){
+////		setvbuf(stdin,inbuf,_IOFBF,SZ);
+////		setvbuf(stdout,outbuf,_IOFBF,SZ);
+////	}
+////}io;
 //
 //typedef int Rank; //秩
-//#define DEFAULT_CAPACITY  3 //默认的初始容量（实际应用中可设置为更大）
-//
 //#define ListNodePosi(T) ListNode<T>* //列表节点位置
 //
 //template <typename T> struct ListNode {
@@ -165,108 +163,183 @@
 //	} //队首
 //};
 //
+//template <typename T> class Stack: public List<T> 
+//{ 
+//	//将列表的首/末端作为栈顶/底
+//public: 
+//	//size()、empty()以及其它开放接口，均可直接沿用
+//	//入栈：等效于将新元素作为列表的首元素插入
+//	void push ( T const& e ) 
+//	{ 
+//		this->insertAsLast ( e ); 
+//	}
+//
+//	//出栈：等效于删除列表的首元素
+//	T pop()
+//	{
+//		return this->remove ( this->last() ); 
+//	}
+//
+//	//取顶：直接返回列表的首元素
+//	T& top()
+//	{ 
+//		return this->last()->data; 
+//	} 
+//};
+//
+//struct AdjListNode
+//{
+//	int _v;
+//	int _weight;
+//	AdjListNode() {_v=-1;_weight=-1;}
+//	AdjListNode(int v, int w)  { _v = v;  _weight = w;}
+//	int getV()       {  return _v;  }
+//	int getWeight()  {  return _weight; }
+//};
+//
+////有向图
 //class Graph
 //{
-//	int V;    // No. of vertices
-//	List<int> *adj;    // Pointer to an array containing adjacency lists
+//	int _numV;
+//	List<AdjListNode> *adj;
+//	void tSort(int v, bool visited[], Queue<int> &queue);
 //public:
-//	Graph(int V);  // Constructor
-//	void addEdge(int v, int w); // function to add an edge to graph
-//	bool BFS(int n);  // prints BFS traversal from a given source s
+//	Graph(int V);
+//	void addEdge(int u, int v, int weight);
+//	void longestPath(Stack<int>& path);
 //};
 //
 //Graph::Graph(int V)
 //{
-//	this->V = V;
-//	adj = new List<int>[V];
+//	this->_numV = V;
+//	adj = new List<AdjListNode>[V];
 //}
 //
-//void Graph::addEdge(int v, int w)
+//void Graph::addEdge(int u, int v, int weight)
 //{
-//	adj[v].insertAsLast(w);
+//	AdjListNode node(v, weight);
+//	adj[u].insertAsLast(node);
 //}
 //
-//bool Graph::BFS(int n)
+////拓扑排序
+//void Graph::tSort(int v, bool visited[], Queue<int> &queue)
 //{
-//	bool *visited = new bool[V];
-//	for(int i = 0; i < V; i++)
+//	visited[v] = true;
+//	for (int i = 0; i < adj[v].size(); ++i)
+//	{
+//		AdjListNode node = adj[v][i];
+//		if (!visited[node.getV()])
+//			tSort(node.getV(), visited, queue);
+//	}
+//	queue.enqueue(v);
+//}
+//
+//void Graph::longestPath(Stack<int>& path)
+//{
+//	Queue<int> queue;
+//	int *dist = new int[_numV];
+//	bool *visited = new bool[_numV];
+//	for (int i = 0; i < _numV; i++)
+//	{
 //		visited[i] = false;
+//		dist[i] = 0;
+//	}
 //
-//	//for (int n =0; n < V; n++)
-//	//{
-//	//	if (!visited[n])
-//	//	{	
-//			Queue<int> queue;
-//			visited[n] = true;
-//			queue.enqueue(n);
-//
-//			while(!queue.empty())
+//	for (int i = 0; i < _numV; i++)
+//	{
+//		if (visited[i] == false)
+//		{
+//			tSort(i, visited, queue);
+//		}
+//	}
+//	
+//	while (!queue.empty())
+//	{
+//		int u = queue.dequeue();
+//		int maxWeight = 0; int nextnode = -1;
+//		for (int j = 0; j < adj[u].size(); ++j)
+//		{
+//			AdjListNode node = adj[u][j];
+//			if (dist[node.getV()] + node.getWeight() > maxWeight ||
+//				(dist[node.getV()] + node.getWeight() == maxWeight && node.getV() < nextnode)
+//				)
 //			{
-//				int v = queue.dequeue();
-//				//printf("%d\t",v);
-//				if (adj[v].size() > 2)
-//				{
-//					return false;
-//				}
-//				for(int i = 0; i < adj[v].size(); ++i)
-//				{
-//					if(!visited[adj[v][i]])
-//					{
-//						visited[adj[v][i]] = true;
-//						queue.enqueue(adj[v][i]);
-//					}
-//				}
+//				maxWeight = dist[node.getV()] + node.getWeight();
+//				nextnode = node.getV();
 //			}
-//	//	}
-//	//}
+//		}
+//		if (nextnode != -1)
+//		{
+//			while(!path.empty() && nextnode != path.top() && maxWeight > dist[path.top()])
+//			{
+//				path.pop();
+//			}
+//			if (path.empty())
+//			{
+//				path.push(nextnode);
+//			}
+//			if (maxWeight > dist[path.top()])
+//			{
+//				path.push(u);
+//			}
+//			dist[u] = maxWeight;
+//		}
+//		else//degree 0
+//		{
+//			if (path.empty())
+//			{
+//				path.push(u);
+//			}
+//			else
+//			{
+//				dist[u] = 0;
+//			}
+//		}
+//		
+//	}
 //
-//	return true;
 //}
+//
 ////int main()
 ////{
-////	// Create a graph given in the above diagram
-////	Graph g(2);
-////	g.addEdge(0, 1);
-////	g.addEdge(1, 0);
-////
-////	g.addEdge(2, 4);
-////	g.addEdge(4, 2);
-////	g.addEdge(2, 3);
+////	Graph g(4);
+////	g.addEdge(0, 3);
+////	g.addEdge(1, 3);
 ////	g.addEdge(3, 2);
-////	g.addEdge(3, 4);
-////	g.addEdge(4, 3);
-////	g.addEdge(3, 5);
-////	g.addEdge(5, 3);
 ////
-////	bool result = g.BFS();
-////	printf("%d", result ? 1: 0);
+////	printf("%d\n",g.longestPath());
 ////
 ////	return 0;
 ////}
+////
 //
 //int main(){
 //#ifndef _OJ_
-//	freopen("input_broadcast.txt", "r", stdin);
+//	freopen("input_tsp_thu1.txt", "r", stdin);
 //	//freopen("output_lh.txt", "w", stdout);
 //#endif
 //	int n,m;
 //	scanf("%d %d", &n, &m);
 //	int *from  = new int[m];
 //	int *to = new int[m];
+//	int *wgt = new int[m];
 //	for (int i = 0; i < m; i++)
 //	{
-//		scanf("%d %d", &from[i], &to[i]);
+//		scanf("%d %d %d", &from[i], &to[i], &wgt[i]);
 //	}
-//
+//	
 //	Graph g(n);
 //	for (int i = 0; i < m; i++)
 //	{
-//		g.addEdge(from[i] - 1, to[i] - 1);
-//		g.addEdge(to[i] - 1, from[i] - 1);
+//		g.addEdge(from[i] - 1, to[i] - 1, wgt[i]);
 //	}
 //
-//	bool result = g.BFS(0);
-//	printf("%d", result ? 1: -1);
+//	Stack<int> s;
+//	g.longestPath(s);
+//	while(!s.empty())
+//	{
+//		printf("%d\t", s.pop()+1);
+//	}
 //	//fclose(stdin);
 //	//fclose(stdout);
 //	return 0;

@@ -12,8 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="broadcast.cpp" />
+    <ClCompile Include="hashtable.cpp" />
     <ClCompile Include="tsort.cpp" />
     <ClCompile Include="tsp.cpp" />
+    <ClCompile Include="tsp_thu.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D8B223EF-3707-41A0-B241-9E06A8A77A7D}</ProjectGuid>
