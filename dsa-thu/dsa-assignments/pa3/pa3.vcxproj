@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="broadcast.cpp" />
+    <ClCompile Include="deduplicate.cpp" />
     <ClCompile Include="hashtable.cpp" />
     <ClCompile Include="tsort.cpp" />
     <ClCompile Include="tsp.cpp" />
