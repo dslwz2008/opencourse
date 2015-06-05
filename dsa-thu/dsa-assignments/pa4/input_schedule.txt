@@ -1,4 +1,4 @@
 3 10
-4294967295 hello
-4294967294 world
-4294967293 test
+1 hello
+2 world
+10 test

@@ -74,7 +74,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cycle.cpp" />
     <ClCompile Include="schedule.cpp" />
+    <ClCompile Include="schedule1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="heap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

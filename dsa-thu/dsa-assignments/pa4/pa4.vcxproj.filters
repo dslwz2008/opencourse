@@ -18,5 +18,16 @@
     <ClCompile Include="schedule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="schedule1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cycle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="heap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

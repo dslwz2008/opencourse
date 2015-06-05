@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <climits>
 
-////fast io
-//const int SZ = 1<<20;
-//struct fastio{
-//	char inbuf[SZ];
-//	char outbuf[SZ];
-//	fastio(){
-//		setvbuf(stdin,inbuf,_IOFBF,SZ);
-//		setvbuf(stdout,outbuf,_IOFBF,SZ);
-//	}
-//}io;
+//fast io
+const int SZ = 1<<20;
+struct fastio{
+	char inbuf[SZ];
+	char outbuf[SZ];
+	fastio(){
+		setvbuf(stdin,inbuf,_IOFBF,SZ);
+		setvbuf(stdout,outbuf,_IOFBF,SZ);
+	}
+}io;
+
 typedef int Rank; //秩
-#define DEFAULT_CAPACITY  100 //默认的初始容量（实际应用中可设置为更大）
+#define DEFAULT_CAPACITY  4000000 //默认的初始容量（实际应用中可设置为更大）
 
 //向量模板类
 template <typename T> class Vector { 
@@ -181,7 +183,7 @@ protected:
 	//取优先级大者
 	Rank bigger(Rank i, Rank j)
 	{
-		return this->_elem[i]<this->_elem[j] ? j : i;
+		return this->_elem[i] < this->_elem[j] ? j : i;
 	}
 
 	 /*父子（至多）三者中的大者*/
@@ -222,14 +224,14 @@ public:
 
 };
 
-typedef unsigned long long ull;
+typedef unsigned int uint;
 
 struct Job
 {
-	ull _id;
+	uint _id;
 	char* _name;
-	Job(){_id=0; _name=NULL;}
-	Job(ull id, char *name){_id=id; _name=name;}
+	Job():_id(0), _name(NULL){}
+	Job(uint id, char *name):_id(id), _name(name){}
 
 	Job& operator = (const Job &j)
 	{
@@ -237,7 +239,7 @@ struct Job
 		return *this;
 	}
 
-	//优先级高低
+	//id越小，优先级越高
 	bool operator< (const Job &j) const
 	{
 		if(_id < j._id)
@@ -272,16 +274,16 @@ int main(){
 
 	int n,m;
 	scanf("%d %d\r\n",&n, &m);
-	if (n == 0)
-	{
-		return 0;
-	}
+	//if (m == 0 || n==0)
+	//{
+	//	return 0;
+	//}
 
 	Job *jobs = new Job[n];
 	for(int i=0; i<n; i++)
 	{
 		char *temp = new char[9];
-		scanf("%l64u %s", &jobs[i]._id, temp);
+		scanf("%u %s", &jobs[i]._id, temp);
 		jobs[i]._name = temp;
 		//getchar();
 	}
@@ -292,9 +294,9 @@ int main(){
 	{
 		Job jTemp = pqJobs.delMax();
 		printf("%s\n", jTemp._name);
-		jTemp._id = jTemp._id << 1;
-		if (jTemp._id < 4294967296)
+		if (jTemp._id < UINT_MAX/2)
 		{
+			jTemp._id = jTemp._id << 1;
 			pqJobs.insert(jTemp);
 		}
 		idx++;
