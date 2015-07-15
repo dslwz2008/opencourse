@@ -31,7 +31,7 @@ mat3 Transform::rotate(const float degrees, const vec3& axis) {
 
 // Transforms the camera left around the "crystal ball" interface
 void Transform::left(float degrees, vec3& eye, vec3& up) {
-  eye = rotate(-degrees, up)*eye;
+  eye = rotate(degrees, up)*eye;
 }
 
 // Transforms the camera up around the "crystal ball" interface
