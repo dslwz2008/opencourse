@@ -64,6 +64,27 @@ mat4 Transform::lookAt(vec3 eye, vec3 up) {
   return r*t;
 }
 
+mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
+{
+	// YOUR CODE FOR HW2 HERE
+	// New, to implement the perspective transform as well.  
+	float range = tan(glm::radians(fovy / 2.f)) * zNear;
+	//近平面上4个角点
+	float left = -range * aspect;
+	float right = range * aspect;
+	float bottom = -range;
+	float top = range;
+
+	mat4 ret(0.f);
+	ret[0][0] = (2.f * zNear) / (right - left);
+	ret[1][1] = (2.f * zNear) / (top - bottom);
+	ret[2][2] = - (zFar + zNear) / (zFar - zNear);
+	ret[2][3] = - 1.f;
+	ret[3][2] = - (2.f * zFar * zNear) / (zFar - zNear);
+
+	return ret;
+}
+
 Transform::Transform()
 {
 

@@ -55,6 +55,8 @@ GLuint diffuse;
 GLuint specular; 
 GLuint shininess; 
 
+mat4 mv; 
+
 // New helper transformation function to transform vector by modelview 
 // May be better done using newer glm functionality.
 void transformvec (const GLfloat input[4],GLfloat output[4]) {
@@ -179,8 +181,20 @@ void reshape(int width,int height){
 	h = height;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90,w/(float)h,0.1,99);
-	glViewport(0,0,w,h);
+	//gluPerspective(90,w/(float)h,0.1,99);
+
+	glMatrixMode(GL_PROJECTION);
+	float aspect = w / (float) h, zNear = 0.1, zFar = 99.0 ;
+	// I am changing the projection stuff to be consistent with lookat
+	if (useGlu) {
+		mv = glm::perspective(90.0f,aspect,zNear,zFar) ; 
+	}
+	else {
+		mv = Transform::perspective(90.0f,aspect,zNear,zFar) ; 
+	}
+	glLoadMatrixf(&mv[0][0]) ; 
+
+	glViewport(0, 0, w, h);
 }
 
 
@@ -222,7 +236,6 @@ void display() {
 
 
 	glMatrixMode(GL_MODELVIEW);
-	mat4 mv; 
 	const vec3 center(0.0,0.0,0.0); 
 
 	if (useGlu) {

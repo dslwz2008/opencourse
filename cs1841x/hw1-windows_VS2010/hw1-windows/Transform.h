@@ -27,5 +27,6 @@ public:
 	static void up(float degrees, vec3& eye, vec3& up);
 	static mat4 lookAt(vec3 eye, vec3 up);
 	static mat3 rotate(const float degrees, const vec3& axis) ;
+	static mat4 perspective(float fovy, float aspect, float zNear, float zFar);
 };
 
