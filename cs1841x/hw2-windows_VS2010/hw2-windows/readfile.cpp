@@ -169,12 +169,12 @@ void readfile(const char* filename)
 						eyeinit[0] = values[0];
 						eyeinit[1] = values[1];
 						eyeinit[2] = values[2];
-						upinit[0] = values[3];
-						upinit[1] = values[4];
-						upinit[2] = values[5];
-						center[0] = values[6];
-						center[1] = values[7];
-						center[2] = values[8];
+						center[0] = values[3];
+						center[1] = values[4];
+						center[2] = values[5];
+						upinit[0] = values[6];
+						upinit[1] = values[7];
+						upinit[2] = values[8];
 						fovy = values[9];
                     }
                 }
@@ -228,7 +228,7 @@ void readfile(const char* filename)
 						trans[0][3]=values[0];
 						trans[1][3]=values[1];
 						trans[2][3]=values[2];
-						//rightmultiply(trans, transfstack);
+						rightmultiply(trans, transfstack);
                     }
                 }
                 else if (cmd == "scale") {
@@ -243,7 +243,7 @@ void readfile(const char* filename)
 						scale[0][0]=values[0];
 						scale[1][1]=values[1];
 						scale[2][2]=values[2];
-						//rightmultiply(scale, transfstack);
+						rightmultiply(scale, transfstack);
                     }
                 }
                 else if (cmd == "rotate") {
@@ -260,7 +260,7 @@ void readfile(const char* filename)
 						axis = glm::normalize(axis);
 						mat3 rot = Transform::rotate(values[3], axis);
 						mat4 rot4(rot);
-						//rightmultiply(rot4, transfstack);
+						rightmultiply(rot4, transfstack);
                     }
                 }
 

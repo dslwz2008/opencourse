@@ -34,3 +34,5 @@
 ipch
 *.sdf
 Debug
+*.sdf
+*.suo

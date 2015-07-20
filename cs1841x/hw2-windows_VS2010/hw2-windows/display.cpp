@@ -40,7 +40,7 @@ void transformvec (const GLfloat input[4], GLfloat output[4])
 
 void display() 
 {
-  glClearColor(1, 0, 0, 0);
+  glClearColor(0, 0, 0, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // I'm including the basic matrix setup for model view to 

@@ -50,11 +50,15 @@ void Transform::up(float degrees, vec3& eye, vec3& up)
 
 mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) 
 {
-    mat4 ret;
     // YOUR CODE FOR HW2 HERE
-    // Likely the same as in HW 1.  
-	vec3 w = glm::normalize(eye);
-	vec3 u = glm::normalize(glm::cross(glm::normalize(up),w));
+    // Likely the same as in HW 1. 
+
+	vec3 x = glm::cross(up,eye-center); 
+	vec3 y = glm::cross(eye-center,x); 
+	vec3 ret = glm::normalize(y); 
+
+	vec3 w = glm::normalize(eye-center);
+	vec3 u = glm::normalize(glm::cross(ret,w));
 	vec3 v = glm::normalize(glm::cross(w,u));
 	mat4 t(
 		1.0, 0.0, 0.0, 0.0,
