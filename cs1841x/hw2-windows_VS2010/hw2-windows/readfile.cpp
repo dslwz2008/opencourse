@@ -105,8 +105,8 @@ void readfile(const char* filename)
                             // Make use of lightposn[] and lightcolor[] arrays in variables.h
 							// Those arrays can then be used in display too. 
 							for (i = 0; i < 4; i++) {
-								lightposn[4*(numused-1) + i] = values[i];
-								lightcolor[4*(numused-1) + i] = values[i+4];
+								lightposn[4*numused + i] = values[i];
+								lightcolor[4*numused + i] = values[i+4];
 							}
                             ++numused; 
                         }
@@ -224,7 +224,11 @@ void readfile(const char* filename)
                         // Think about how the transformation stack is affected
                         // You might want to use helper functions on top of file. 
                         // Also keep in mind what order your matrix is!
-
+						mat4 trans(1.0f) ;
+						trans[0][3]=values[0];
+						trans[1][3]=values[1];
+						trans[2][3]=values[2];
+						//rightmultiply(trans, transfstack);
                     }
                 }
                 else if (cmd == "scale") {
@@ -235,7 +239,11 @@ void readfile(const char* filename)
                         // Think about how the transformation stack is affected
                         // You might want to use helper functions on top of file.  
                         // Also keep in mind what order your matrix is!
-
+						mat4 scale(1.0f);
+						scale[0][0]=values[0];
+						scale[1][1]=values[1];
+						scale[2][2]=values[2];
+						//rightmultiply(scale, transfstack);
                     }
                 }
                 else if (cmd == "rotate") {
@@ -248,7 +256,11 @@ void readfile(const char* filename)
                         // See how the stack is affected, as above.  
                         // Note that rotate returns a mat3. 
                         // Also keep in mind what order your matrix is!
-
+						vec3 axis(values[0], values[1], values[2]);
+						axis = glm::normalize(axis);
+						mat3 rot = Transform::rotate(values[3], axis);
+						mat4 rot4(rot);
+						//rightmultiply(rot4, transfstack);
                     }
                 }
 
