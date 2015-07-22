@@ -111,7 +111,11 @@ void display()
     // Set up the object transformations 
     // And pass in the appropriate material properties
     // Again glUniform() related functions will be useful
-	
+	glLoadMatrixf(&(obj->transform)[0][0]);
+	glUniform4fv(ambientcol, 1, obj->ambient);
+	glUniform4fv(diffusecol, 1, obj->diffuse);
+	glUniform4fv(specularcol, 1, obj->specular);
+	glUniform1f(shininess, obj->shininess);
 
     // Actually draw the object
     // We provide the actual glut drawing functions for you.  
