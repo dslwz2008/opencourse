@@ -69,6 +69,24 @@ void display()
     // glUniform4fv() and similar functions will be useful. See FAQ for help with these functions.
     // The lightransf[] array in variables.h and transformvec() might also be useful here.
     // Remember that light positions must be transformed by modelview.  
+	for(int i=0;i<numused;i++)
+	{
+		GLfloat pos[4] = {lightposn[4*i],lightposn[4*i+1],lightposn[4*i+2],lightposn[4*i+3]};
+		GLfloat trans[4];
+		transformvec(pos, trans);
+		lightransf[4*i+0]=trans[0];
+		lightransf[4*i+1]=trans[1];
+		lightransf[4*i+2]=trans[2];
+		lightransf[4*i+3]=trans[3];
+	}
+	glUniform4fv(lightpos, numLights, lightposn);
+	glUniform4fv(lightcol, numLights, lightcolor);
+	glUniform1i(numusedcol, numused);
+	glUniform4fv(ambientcol, 1, ambient);
+	glUniform4fv(diffusecol, 1, diffuse);
+	glUniform4fv(specularcol, 1, specular);
+	glUniform4fv(emissioncol, 1, emission);
+	glUniform1f(shininesscol, shininess);
 
   } else {
     glUniform1i(enablelighting,false); 
@@ -93,6 +111,7 @@ void display()
     // Set up the object transformations 
     // And pass in the appropriate material properties
     // Again glUniform() related functions will be useful
+	
 
     // Actually draw the object
     // We provide the actual glut drawing functions for you.  
