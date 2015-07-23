@@ -35,44 +35,62 @@ mat3 Transform::rotate(const float degrees, const vec3& axis)
 void Transform::left(float degrees, vec3& eye, vec3& up) 
 {
     // YOUR CODE FOR HW2 HERE
-    // Likely the same as in HW 1. 
-	eye = rotate(degrees, up)*eye;
+    // Likely the same as in HW 1.
+	mat3 rotateMat = Transform::rotate(degrees, glm::normalize(up));
+	eye = rotateMat*eye;
+	up = rotateMat*up;
+	//eye = rotate(degrees, up)*eye;
 }
 
 void Transform::up(float degrees, vec3& eye, vec3& up) 
 {
     // YOUR CODE FOR HW2 HERE 
-	// Likely the same as in HW 1. 
-	vec3 right=glm::normalize(glm::cross(-eye, up));
-	eye = rotate(-degrees, right) * eye;
-	up = rotate(-degrees, right) * up; 
+	// Likely the same as in HW 1.
+	mat3 rotateMat = Transform::rotate(degrees, glm::normalize(glm::cross(eye, up)));
+	up = rotateMat*up;
+	eye = rotateMat*eye;
+	//vec3 right=glm::normalize(glm::cross(-eye, up));
+	//eye = rotate(-degrees, right) * eye;
+	//up = rotate(-degrees, right) * up; 
 }
 
 mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up) 
 {
     // YOUR CODE FOR HW2 HERE
     // Likely the same as in HW 1. 
+	//construct the coordinate frame
+	vec3 w = glm::normalize(eye);
+	vec3 u = glm::normalize(glm::cross(up, w));
+	vec3 v = glm::cross(w, u);
 
-	vec3 x = glm::cross(up,eye-center); 
-	vec3 y = glm::cross(eye-center,x); 
-	vec3 ret = glm::normalize(y); 
+	mat4 rotateMat = mat4(u.x, v.x, w.x, 0, u.y, v.y, w.y, 0, u.z, v.z, w.z, 0, 0, 0, 0, 1);
+	mat4 eyeMat = mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -eye.x, -eye.y, -eye.z, 1);
+	mat4 resultMat = rotateMat*eyeMat;
 
-	vec3 w = glm::normalize(eye-center);
-	vec3 u = glm::normalize(glm::cross(ret,w));
-	vec3 v = glm::normalize(glm::cross(w,u));
-	mat4 t(
-		1.0, 0.0, 0.0, 0.0,
-		0.0, 1.0, 0.0, 0.0,
-		0.0, 0.0, 1.0, 0.0,
-		-eye.x, -eye.y, -eye.z, 1.0
-		);
-	mat4 r(
-		u.x, v.x, w.x, 0.0,
-		u.y, v.y, w.y, 0.0,
-		u.z, v.z, w.z, 0.0,
-		0.0, 0.0, 0.0, 1.0
-		);
-    return r*t;
+
+	// You will change this return call
+	return resultMat;
+
+	//vec3 x = glm::cross(up,eye-center); 
+	//vec3 y = glm::cross(eye-center,x); 
+	//vec3 ret = glm::normalize(y); 
+
+	//vec3 w = glm::normalize(eye-center);
+	//vec3 u = glm::normalize(glm::cross(ret,w));
+	//vec3 v = glm::normalize(glm::cross(w,u));
+	//mat4 t(
+	//	1.0, 0.0, 0.0, 0.0,
+	//	0.0, 1.0, 0.0, 0.0,
+	//	0.0, 0.0, 1.0, 0.0,
+	//	-eye.x, -eye.y, -eye.z, 1.0
+	//	);
+	//mat4 r(
+	//	u.x, v.x, w.x, 0.0,
+	//	u.y, v.y, w.y, 0.0,
+	//	u.z, v.z, w.z, 0.0,
+	//	0.0, 0.0, 0.0, 1.0
+	//	);
+ //   return r*t;
 }
 
 mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
@@ -98,21 +116,24 @@ mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 
 mat4 Transform::scale(const float &sx, const float &sy, const float &sz) 
 {
-    mat4 ret(1.0);
-    // YOUR CODE FOR HW2 HERE
-    // Implement scaling 
-	ret[0][0] = sx; ret[1][1] = sy; ret[2][2] = sz;
-    return ret;
+	mat4 ret = mat4(
+		sx, 0, 0, 0,
+		0, sy, 0, 0, 
+		0, 0, sz, 0, 
+		0, 0, 0, 1);
+	return ret;
 }
 
 mat4 Transform::translate(const float &tx, const float &ty, const float &tz) 
 {
-    mat4 ret(1.0);
-    // YOUR CODE FOR HW2 HERE
-    // Implement translation 
-	ret[0][0] = 1.0f; ret[1][1] = 1.0f; ret[2][2] = 1.0f; ret[3][3] = 1.0f;
-	ret[0][3] = tx; ret[1][3] = ty; ret[2][3] = tz;
-    return ret;
+	mat4 ret;
+	// YOUR CODE FOR HW2 HERE
+	// Implement translation 
+	ret = mat4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		tx, ty, tz, 1);
+	return ret;
 }
 
 // To normalize the up direction and construct a coordinate frame.  
