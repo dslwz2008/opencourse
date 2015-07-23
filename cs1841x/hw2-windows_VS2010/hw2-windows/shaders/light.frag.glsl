@@ -65,17 +65,17 @@ void main (void)
 		{
 			if(lightposn[i].w == 0)// directional
 			{
-				vec3 direction = normalize (lightposn[i].xyz) ; 
-				vec3 halfn = normalize (direction + eyedirn) ; 
-				vec4 col = ComputeLight(direction, lightcolor[i], normal, halfn, diffuse, specular, shininess) ;
+				vec3 direction0 = normalize (lightposn[i].xyz) ; 
+				vec3 half0 = normalize (direction0 + eyedirn) ; 
+				vec4 col = ComputeLight(direction0, lightcolor[i], normal, half0, diffuse, specular, shininess) ;
 				sum += col;
 			}
 			else//point
 			{
 				vec3 position = lightposn[i].xyz / lightposn[i].w ; 
-				vec3 direction = normalize (position - mypos) ; // no attenuation 
-				vec3 halfn = normalize (direction + eyedirn) ;  
-				vec4 col = ComputeLight(direction, lightcolor[i], normal, halfn, diffuse, specular, shininess) ;
+				vec3 direction1 = normalize (position - mypos) ; // no attenuation 
+				vec3 half1 = normalize (direction1 + eyedirn) ;  
+				vec4 col = ComputeLight(direction1, lightcolor[i], normal, half1, diffuse, specular, shininess) ;
 				sum += col;
 			}
 		}
