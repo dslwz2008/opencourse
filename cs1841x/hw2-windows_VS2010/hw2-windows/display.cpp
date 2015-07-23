@@ -79,14 +79,9 @@ void display()
 		lightransf[4*i+2]=trans[2];
 		lightransf[4*i+3]=trans[3];
 	}
-	glUniform4fv(lightpos, numLights, lightposn);
+	glUniform4fv(lightpos, numLights, lightransf);
 	glUniform4fv(lightcol, numLights, lightcolor);
 	glUniform1i(numusedcol, numused);
-	glUniform4fv(ambientcol, 1, ambient);
-	glUniform4fv(diffusecol, 1, diffuse);
-	glUniform4fv(specularcol, 1, specular);
-	glUniform4fv(emissioncol, 1, emission);
-	glUniform1f(shininesscol, shininess);
 
   } else {
     glUniform1i(enablelighting,false); 
@@ -111,11 +106,14 @@ void display()
     // Set up the object transformations 
     // And pass in the appropriate material properties
     // Again glUniform() related functions will be useful
-	glLoadMatrixf(&(obj->transform)[0][0]);
+
+	mat4 result = transf * obj->transform;
+	glLoadMatrixf(&result[0][0]);
+
 	glUniform4fv(ambientcol, 1, obj->ambient);
 	glUniform4fv(diffusecol, 1, obj->diffuse);
 	glUniform4fv(specularcol, 1, obj->specular);
-	glUniform1f(shininess, obj->shininess);
+	glUniform1f(shininesscol, obj->shininess);
 
     // Actually draw the object
     // We provide the actual glut drawing functions for you.  

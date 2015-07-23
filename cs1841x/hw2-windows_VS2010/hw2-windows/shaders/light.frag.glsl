@@ -60,17 +60,28 @@ void main (void)
         vec3 _normal = (gl_ModelViewMatrixInverseTranspose*vec4(mynormal,0.0)).xyz ; 
         vec3 normal = normalize(_normal) ; 
 
-		for(int i=0;i<numused;i++)
+		vec4 sum;
+		for(int i=0; i<numused; i++)
 		{
-			vec3 position = lightposn[i].xyz / lightposn[i].w ; 
-			vec3 direction = normalize (position - mypos) ; // no attenuation 
-			vec3 halfn = normalize (direction + eyedirn) ;  
-			vec4 col = ComputeLight(direction, lightcolor[i], normal, halfn, diffuse, specular, shininess) ;
-			finalcolor += col;
+			if(lightposn[i].w == 0)// directional
+			{
+				vec3 direction = normalize (lightposn[i].xyz) ; 
+				vec3 halfn = normalize (direction + eyedirn) ; 
+				vec4 col = ComputeLight(direction, lightcolor[i], normal, halfn, diffuse, specular, shininess) ;
+				sum += col;
+			}
+			else//point
+			{
+				vec3 position = lightposn[i].xyz / lightposn[i].w ; 
+				vec3 direction = normalize (position - mypos) ; // no attenuation 
+				vec3 halfn = normalize (direction + eyedirn) ;  
+				vec4 col = ComputeLight(direction, lightcolor[i], normal, halfn, diffuse, specular, shininess) ;
+				sum += col;
+			}
 		}
-        
+        finalcolor = ambient + emission + sum;
         // Color all pixels black for now, remove this in your implementation!
-        //finalcolor = vec4(0,0,0,1); 
+        //finalcolor = vec4(1,0,0,1); 
 
         gl_FragColor = finalcolor; 
     } else {

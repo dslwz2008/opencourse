@@ -224,10 +224,12 @@ void readfile(const char* filename)
                         // Think about how the transformation stack is affected
                         // You might want to use helper functions on top of file. 
                         // Also keep in mind what order your matrix is!
-						mat4 trans(1.0f) ;
-						trans[0][3]=values[0];
-						trans[1][3]=values[1];
-						trans[2][3]=values[2];
+						mat4 trans(
+							1.0f, 0.0f, 0.0f, 0.0f,
+							0.0f, 1.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 1.0f, 0.0f,
+							values[0], values[1], values[2], 1.0f
+							);
 						rightmultiply(trans, transfstack);
                     }
                 }
@@ -239,10 +241,12 @@ void readfile(const char* filename)
                         // Think about how the transformation stack is affected
                         // You might want to use helper functions on top of file.  
                         // Also keep in mind what order your matrix is!
-						mat4 scale(1.0f);
-						scale[0][0]=values[0];
-						scale[1][1]=values[1];
-						scale[2][2]=values[2];
+						mat4 scale(
+							values[0], 0.0f, 0.0f, 0.0f,
+							0.0f, values[1], 0.0f, 0.0f,
+							0.0f, 0.0f, values[2], 0.0f,
+							0.0f, 0.0f, 0.0f, 1.0f
+							);
 						rightmultiply(scale, transfstack);
                     }
                 }

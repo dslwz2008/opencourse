@@ -4,7 +4,7 @@
 # Teapot geometry specified at end
 
 size 600 400
-camera 0 0 5 0 0 0 0 1 0 90.0
+camera 0 0 10 0 0 0 0 1 0 90.0
 
 light 0 5 10 1 0.6 0.3 0.0 1.0 
 light 0 5 -10 1 0 0.3 0.6 1 
