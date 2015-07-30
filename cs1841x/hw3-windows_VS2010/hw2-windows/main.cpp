@@ -24,11 +24,9 @@ float sx, sy ; // the scale in x and y
 float tx, ty ; // the translation in x and y
 
 // Lighting parameter array, similar to that in the fragment shader
-const int numLights = 10 ; 
-float lightposn [4*numLights] ; // Light Positions
-float lightcolor[4*numLights] ; // Light Colors
-float lightransf[4*numLights] ; // Lights transformed by modelview
-int numused ;                     // How many lights are used 
+vector<vec3> lightposn; // Light Positions
+vector<vec3>  lightcolor; // Light Colors
+vector<vec3>  lightransf; // Lights transformed by modelview
 
 // Materials (read from file) 
 // With multiple objects, these are colors for each.
@@ -40,7 +38,7 @@ float shininess ;
 
 //几何数据
 int maxverts;
-vector<float*> vertex;
+vector<vec3> vertexes;
 
 // For multiple objects, read from a file.
 int numobjects ; 
@@ -109,23 +107,15 @@ void readfile (const char * filename)
 
 				// Process the light, add it to database.
 				// Lighting Command
-				if (cmd == "light") {
-					if (numused == numLights) { // No more Lights 
-						cerr << "Reached Maximum Number of Lights " << numused << " Will ignore further lights\n";
-					} else {
-						validinput = readvals(s, 8, values); // Position/color for lts.
-						if (validinput) {
-
-							// YOUR CODE FOR HW 2 HERE. 
-							// Note that values[0...7] shows the read in values 
-							// Make use of lightposn[] and lightcolor[] arrays in variables.h
-							// Those arrays can then be used in display too. 
-							for (i = 0; i < 4; i++) {
-								lightposn[4*numused + i] = values[i];
-								lightcolor[4*numused + i] = values[i+4];
-							}
-							++numused; 
-						}
+				if (cmd == "point" || cmd == "directional" || cmd == "light") {
+					validinput = readvals(s, 6, values); // Position/color for lts.
+					if (validinput) {
+						// YOUR CODE FOR HW 2 HERE. 
+						// Note that values[0...7] shows the read in values 
+						// Make use of lightposn[] and lightcolor[] arrays in variables.h
+						// Those arrays can then be used in display too. 
+						lightposn.push_back(vec3(values[0], values[1], values[2]));
+						lightcolor.push_back(vec3(values[3], values[4], values[5]));
 					}
 				}
 
@@ -136,30 +126,30 @@ void readfile (const char * filename)
 				// Note that no transforms/stacks are applied to the colors. 
 
 				else if (cmd == "ambient") {
-					validinput = readvals(s, 4, values); // colors 
+					validinput = readvals(s, 3, values); // colors 
 					if (validinput) {
-						for (i = 0; i < 4; i++) {
+						for (i = 0; i < 3; i++) {
 							ambient[i] = values[i]; 
 						}
 					}
 				} else if (cmd == "diffuse") {
-					validinput = readvals(s, 4, values); 
+					validinput = readvals(s, 3, values); 
 					if (validinput) {
-						for (i = 0; i < 4; i++) {
+						for (i = 0; i < 3; i++) {
 							diffuse[i] = values[i]; 
 						}
 					}
 				} else if (cmd == "specular") {
-					validinput = readvals(s, 4, values); 
+					validinput = readvals(s, 3, values); 
 					if (validinput) {
-						for (i = 0; i < 4; i++) {
+						for (i = 0; i < 3; i++) {
 							specular[i] = values[i]; 
 						}
 					}
 				} else if (cmd == "emission") {
-					validinput = readvals(s, 4, values); 
+					validinput = readvals(s, 3, values); 
 					if (validinput) {
-						for (i = 0; i < 4; i++) {
+						for (i = 0; i < 3; i++) {
 							emission[i] = values[i]; 
 						}
 					}
@@ -176,12 +166,6 @@ void readfile (const char * filename)
 				} else if (cmd == "camera") {
 					validinput = readvals(s,10,values); // 10 values eye cen up fov
 					if (validinput) {
-
-						// YOUR CODE FOR HW 2 HERE
-						// Use all of values[0...9]
-						// You may need to use the upvector fn in Transform.cpp
-						// to set up correctly. 
-						// Set eyeinit upinit center fovy in variables.h 
 						eyeinit[0] = values[0];
 						eyeinit[1] = values[1];
 						eyeinit[2] = values[2];
@@ -198,6 +182,18 @@ void readfile (const char * filename)
 				// I've left the code for loading objects in the skeleton, so 
 				// you can get a sense of how this works.  
 				// Also look at demo.txt to get a sense of why things are done this way.
+				else if (cmd == "maxverts") {
+					validinput = readvals(s, 1, values); 
+					if (validinput) {
+						maxverts = values[0]; 
+					}
+				}
+				else if (cmd == "vertex") {
+					validinput = readvals(s, 3, values); 
+					if (validinput) {
+						vertexes.push_back(vec3(values[0], values[1], values[2]));
+					}
+				}
 				else if (cmd == "sphere" || cmd == "cube" || cmd == "teapot") {
 					validinput = readvals(s, 1, values); 
 					if (validinput) {
@@ -237,7 +233,7 @@ void readfile (const char * filename)
 						obj->verindex[2] = (int)values[2];
 
 						// Set the object's light properties
-						for (i = 0; i < 4; i++) {
+						for (i = 0; i < 3; i++) {
 							(obj->ambient)[i] = ambient[i]; 
 							(obj->diffuse)[i] = diffuse[i]; 
 							(obj->specular)[i] = specular[i]; 
@@ -247,15 +243,7 @@ void readfile (const char * filename)
 
 						// Set the object's transform
 						obj->transform = transfstack.top(); 
-
-						// Set the object's type
-						if (cmd == "sphere") {
-							obj->type = sphere; 
-						} else if (cmd == "cube") {
-							obj->type = cube; 
-						} else if (cmd == "teapot") {
-							obj->type = teapot; 
-						}
+						obj->type = tri;
 						objects.push_back(obj);
 					}
 				}
@@ -369,10 +357,9 @@ struct Camera
 
 struct Scene 
 {
-	Scene(object* objects, int objnum){}
-	object _objects[maxobjects];
-	int _maxobjnum;
-	int _objnum;
+	Scene(const vector<object*>& objects)
+		:_objects(objects) { }
+	vector<object*> _objects;
 };
 
 struct IntersectionInfo
@@ -393,28 +380,51 @@ Ray RayThruPixel(const Camera &cam, int i, int j, int width, int height)
 	return ray;
 }
 
-bool IntersectWithTri(const Ray& ray, const object &obj, float &dist)
+bool IntersectWithTri(const Ray& ray, const object *obj, float &dist)
 {
-	//重心法
-	
+	//先计算射线与平面的交点
+	vec3 vertA = vertexes[obj->verindex[0]];
+	vec3 vertB = vertexes[obj->verindex[1]];
+	vec3 vertC = vertexes[obj->verindex[2]];
+	vec3 v0 = vertC - vertA;
+	vec3 v1 = vertB - vertA;
+	vec3 n = glm::normalize(glm::cross(v0, v1));
+	float t = glm::dot(vertA, n) - glm::dot(ray._origin, n) / glm::dot(ray._direction, n);
+	vec3 p = ray._origin + t * ray._direction;
+
+	//重心法：判断点是否在三角形内部
+	vec3 v2 = p - vertA;
+	float u = (glm::dot(v1,v1)*glm::dot(v2,v0)-glm::dot(v1,v0)*glm::dot(v2,v1)) /
+		(glm::dot(v0,v0)*glm::dot(v1,v1) - glm::dot(v0,v1)*glm::dot(v1,v0));
+	float v = (glm::dot(v0,v0)*glm::dot(v2,v1)-glm::dot(v0,v1)*glm::dot(v2,v0)) /
+		(glm::dot(v0,v0)*glm::dot(v1,v1) - glm::dot(v0,v1)*glm::dot(v1,v0));
+	if (u >= 0 && v >= 0 && u+v <=1)
+	{
+		dist = glm::distance(ray._origin, p);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 IntersectionInfo Intersection(const Ray& ray, const Scene& scene)
 {
 	float mindist = FLT_MAX;
 	object *hitobj;
-	for (int i = 0; i < scene._objnum; i++)
+	for (int i = 0; i < scene._objects.size(); i++)
 	{
-		if (scene._objects[i].type == tri)
+		if (scene._objects[i]->type == tri)
 		{
-			float dist = 0.f;
+			float dist = -1.f;
 			if (IntersectWithTri(ray, scene._objects[i], dist))
 			{
-
-			}
-			else
-			{
-
+				if (dist > 0 && dist < mindist)
+				{
+					mindist = dist;
+					hitobj = scene._objects[i];
+				}
 			}
 		}
 	}
@@ -447,16 +457,13 @@ FIBITMAP* Raytrace(const Camera &cam, const Scene &scene, int width, int height)
 }
 
 int main(int argc, char* argv[]) {
-// 	if (argc < 2) {
-// 		cerr << "Usage: transforms scenefile [grader input (optional)]\n"; 
-// 		exit(-1); 
-// 	}
+	if (argc < 1) {
+		cerr << "Usage: transforms scenefile [grader input (optional)]\n"; 
+		exit(-1); 
+	}
 
 	//read test file
-	//readfile(argv[1]);
-
-	const int WIDTH = 100;
-	const int HEIGHT = 100;
+	readfile(argv[1]);
 
 	FreeImage_Initialise();
 
@@ -464,7 +471,7 @@ int main(int argc, char* argv[]) {
 	cam._eye = eyeinit; cam._center = center; cam._up = upinit; 
 	cam._fovy = fovy; cam._fovx = w * fovy / h;
 	cam.orthogonalize();
-	Scene scene(objects, numobjects);
+	Scene scene(objects);
 
 	FIBITMAP *bitmap = Raytrace(cam, scene, w, h);
 
