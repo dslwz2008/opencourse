@@ -24,7 +24,7 @@ float sx, sy ; // the scale in x and y
 float tx, ty ; // the translation in x and y
 
 // Lighting parameter array, similar to that in the fragment shader
-vector<vec3> lightposn; // Light Positions
+vector<vec4> lightposn; // Light Positions
 vector<vec3>  lightcolor; // Light Colors
 vector<vec3>  lightransf; // Lights transformed by modelview
 
@@ -114,7 +114,14 @@ void readfile (const char * filename)
 						// Note that values[0...7] shows the read in values 
 						// Make use of lightposn[] and lightcolor[] arrays in variables.h
 						// Those arrays can then be used in display too. 
-						lightposn.push_back(vec3(values[0], values[1], values[2]));
+						if (cmd == "point")
+						{
+							lightposn.push_back(vec4(values[0], values[1], values[2], 1.f));
+						}
+						else
+						{
+							lightposn.push_back(vec4(values[0], values[1], values[2], 0.f));
+						}
 						lightcolor.push_back(vec3(values[3], values[4], values[5]));
 					}
 				}
@@ -364,10 +371,11 @@ struct Scene
 
 struct IntersectionInfo
 {
-	IntersectionInfo(float dist, object * obj)
-		: _dist(dist), _object(obj){}
+	IntersectionInfo(float dist, object * obj, vec3 intersectPnt)
+		: _dist(dist), _object(obj), _intersectPnt(intersectPnt){}
 	float _dist;
 	object *_object;
+	vec3 _intersectPnt;
 };
 
 Ray RayThruPixel(const Camera &cam, int i, int j, int width, int height)
@@ -380,7 +388,7 @@ Ray RayThruPixel(const Camera &cam, int i, int j, int width, int height)
 	return ray;
 }
 
-bool IntersectWithTri(const Ray& ray, const object *obj, float &dist)
+bool IntersectWithTri(const Ray& ray, const object *obj, float &dist, vec3 pntintersect)
 {
 	//先计算射线与平面的交点
 	vec3 vertA = vertexes[obj->verindex[0]];
@@ -401,6 +409,7 @@ bool IntersectWithTri(const Ray& ray, const object *obj, float &dist)
 	if (u >= 0 && v >= 0 && u+v <=1)
 	{
 		dist = glm::distance(ray._origin, p);
+		pntintersect = p;
 		return true;
 	}
 	else
@@ -412,28 +421,57 @@ bool IntersectWithTri(const Ray& ray, const object *obj, float &dist)
 IntersectionInfo Intersection(const Ray& ray, const Scene& scene)
 {
 	float mindist = FLT_MAX;
-	object *hitobj;
+	object *hitobj = NULL;
+	vec3 minIntersectPnt;
 	for (int i = 0; i < scene._objects.size(); i++)
 	{
 		if (scene._objects[i]->type == tri)
 		{
 			float dist = -1.f;
-			if (IntersectWithTri(ray, scene._objects[i], dist))
+			vec3 pntintersect;
+			if (IntersectWithTri(ray, scene._objects[i], dist, pntintersect))
 			{
 				if (dist > 0 && dist < mindist)
 				{
 					mindist = dist;
 					hitobj = scene._objects[i];
+					minIntersectPnt = pntintersect;
 				}
 			}
 		}
 	}
-	return IntersectionInfo(mindist, hitobj);
+	return IntersectionInfo(mindist, hitobj, minIntersectPnt);
 }
 
-RGBQUAD FindColor(IntersectionInfo hitinfo)
+bool ShieldByAnyObject(const Scene& scene, const IntersectionInfo &hitinfo, const vec4& light)
+{
+
+}
+
+RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
 {
 	RGBQUAD color;
+	if (hitinfo._object == NULL)
+	{
+		color.rgbRed = 0;
+		color.rgbGreen = 0;
+		color.rgbBlue = 0;
+	}
+	else
+	{
+		for (int i = 0; i < lightposn.size(); i++)
+		{
+			if (ShieldByAnyObject(scene, hitinfo, lightposn[i]))
+			{
+				continue;
+			}
+			else
+			{
+				//计算光源贡献
+				vec3 
+			}
+		}
+	}
 	return color;
 }
 
@@ -448,7 +486,7 @@ FIBITMAP* Raytrace(const Camera &cam, const Scene &scene, int width, int height)
 			Ray ray = RayThruPixel(cam, i, j, width, height);
 
 			IntersectionInfo hitinfo= Intersection(ray, scene);
-			RGBQUAD color = FindColor(hitinfo);
+			RGBQUAD color = FindColor(scene, hitinfo);
 			FreeImage_SetPixelColor(bitmap,i,j,&color);
 		}
 	}
