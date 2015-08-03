@@ -20,13 +20,23 @@ float fovy ;
 
 static enum {view, translate, scale} transop ; // which operation to transform 
 enum shape {cube, sphere, teapot, tri} ;
+enum lighttype {directional, point};
+
 float sx, sy ; // the scale in x and y 
 float tx, ty ; // the translation in x and y
 
 // Lighting parameter array, similar to that in the fragment shader
-vector<vec4> lightposn; // Light Positions
-vector<vec3>  lightcolor; // Light Colors
-vector<vec3>  lightransf; // Lights transformed by modelview
+struct Light 
+{
+	Light(){
+		_attenuation = vec3(1.0f,0.0f,0.0f);
+	}
+	lighttype _type;
+	vec3 _lightpos;
+	vec3 _lightcolor;
+	vec3 _attenuation;
+};
+vector<Light> lights;
 
 // Materials (read from file) 
 // With multiple objects, these are colors for each.
@@ -45,13 +55,14 @@ int numobjects ;
 struct object {
 	shape type ; 
 	float size ;
-	float ambient[4] ; 
-	float diffuse[4] ; 
-	float specular[4] ;
-	float emission[4] ; 
+	vec3 ambient; 
+	vec3 diffuse; 
+	vec3 specular;
+	vec3 emission; 
 	float shininess ;
 	mat4 transform ;
 	int verindex[3];//for tri
+	vec3 normal;//for tri
 };
 vector<object*> objects;
 
@@ -110,21 +121,31 @@ void readfile (const char * filename)
 				if (cmd == "point" || cmd == "directional" || cmd == "light") {
 					validinput = readvals(s, 6, values); // Position/color for lts.
 					if (validinput) {
-						// YOUR CODE FOR HW 2 HERE. 
-						// Note that values[0...7] shows the read in values 
-						// Make use of lightposn[] and lightcolor[] arrays in variables.h
-						// Those arrays can then be used in display too. 
+						Light light;
 						if (cmd == "point")
 						{
-							lightposn.push_back(vec4(values[0], values[1], values[2], 1.f));
+							light._lightpos = vec3(values[0], values[1], values[2]);
+							light._lightcolor = vec3(values[3], values[4], values[5]);
+							light._type = point;
 						}
 						else
 						{
-							lightposn.push_back(vec4(values[0], values[1], values[2], 0.f));
+							light._lightpos = vec3(values[0], values[1], values[2]);
+							light._lightcolor = vec3(values[3], values[4], values[5]);
+							light._type = directional;
 						}
-						lightcolor.push_back(vec3(values[3], values[4], values[5]));
+						lights.push_back(light);
 					}
 				}
+				//else if (cmd == "attenuation")
+				//{
+				//	validinput = readvals(s, 3, values); // colors 
+				//	if (validinput) {
+				//		for (i = 0; i < 3; i++) {
+				//			attenuation[i] = values[i]; 
+				//		}
+				//	}
+				//}
 
 				// Material Commands 
 				// Ambient, diffuse, specular, shininess properties for each object.
@@ -192,7 +213,7 @@ void readfile (const char * filename)
 				else if (cmd == "maxverts") {
 					validinput = readvals(s, 1, values); 
 					if (validinput) {
-						maxverts = values[0]; 
+						maxverts = (int)values[0]; 
 					}
 				}
 				else if (cmd == "vertex") {
@@ -240,17 +261,19 @@ void readfile (const char * filename)
 						obj->verindex[2] = (int)values[2];
 
 						// Set the object's light properties
-						for (i = 0; i < 3; i++) {
-							(obj->ambient)[i] = ambient[i]; 
-							(obj->diffuse)[i] = diffuse[i]; 
-							(obj->specular)[i] = specular[i]; 
-							(obj->emission)[i] = emission[i];
-						}
+						obj->ambient = vec3(ambient[0], ambient[1], ambient[2]);
+						obj->diffuse = vec3(diffuse[0], diffuse[1], diffuse[2]);
+						obj->specular = vec3(specular[0], specular[1], specular[2]);
+						obj->emission = vec3(emission[0], emission[1], emission[2]);
 						obj->shininess = shininess; 
 
 						// Set the object's transform
 						obj->transform = transfstack.top(); 
 						obj->type = tri;
+						vec3 vertA = vertexes[obj->verindex[0]];
+						vec3 vertB = vertexes[obj->verindex[1]];
+						vec3 vertC = vertexes[obj->verindex[2]];
+						obj->normal = glm::normalize(glm::cross(vertC-vertB, vertA-vertB));
 						objects.push_back(obj);
 					}
 				}
@@ -371,20 +394,22 @@ struct Scene
 
 struct IntersectionInfo
 {
-	IntersectionInfo(float dist, object * obj, vec3 intersectPnt)
-		: _dist(dist), _object(obj), _intersectPnt(intersectPnt){}
+	IntersectionInfo(float dist, object * obj, vec3 intersectPnt, const Ray& ray)
+		: _dist(dist), _object(obj), _intersectPnt(intersectPnt), _inray(ray){}
 	float _dist;
 	object *_object;
 	vec3 _intersectPnt;
+	Ray _inray;
 };
 
 Ray RayThruPixel(const Camera &cam, int i, int j, int width, int height)
 {
-	float alpha = tan(cam._fovx / 2) * (j - width / 2) / (width / 2);
-	float beta = tan(cam._fovy / 2) * (height / 2 - i) / (height / 2);
+	float alpha = tan(cam._fovx / 2) * (j+0.5f - width / 2) / (width / 2);
+	float beta = tan(cam._fovy / 2) * (height / 2 - i-0.5f) / (height / 2);
+	vec3 dir = alpha*cam._u + beta*cam._v - cam._w;
 	Ray ray;
 	ray._origin = cam._eye;
-	ray._direction = glm::normalize(vec3(alpha, beta, -1));
+	ray._direction = glm::normalize(dir);
 	return ray;
 }
 
@@ -423,6 +448,7 @@ IntersectionInfo Intersection(const Ray& ray, const Scene& scene)
 	float mindist = FLT_MAX;
 	object *hitobj = NULL;
 	vec3 minIntersectPnt;
+	Ray inray;
 	for (int i = 0; i < scene._objects.size(); i++)
 	{
 		if (scene._objects[i]->type == tri)
@@ -436,16 +462,31 @@ IntersectionInfo Intersection(const Ray& ray, const Scene& scene)
 					mindist = dist;
 					hitobj = scene._objects[i];
 					minIntersectPnt = pntintersect;
+					inray = ray;
 				}
 			}
 		}
 	}
-	return IntersectionInfo(mindist, hitobj, minIntersectPnt);
+	return IntersectionInfo(mindist, hitobj, minIntersectPnt, inray);
 }
 
-bool ShieldByAnyObject(const Scene& scene, const IntersectionInfo &hitinfo, const vec4& light)
+bool IsInShadow(const Scene& scene, const IntersectionInfo &hitinfo, const vec3& lightpos)
 {
-
+	bool inShadow = false;
+	Ray ray(hitinfo._intersectPnt, lightpos-hitinfo._intersectPnt);
+	for (int i = 0; i < scene._objects.size(); i++)
+	{
+		if (scene._objects[i]->type == tri)
+		{
+			float dist = -1.f;
+			vec3 pntintersect;
+			if (IntersectWithTri(ray, scene._objects[i], dist, pntintersect))
+			{
+				inShadow = true;
+			}
+		}
+	}
+	return inShadow;
 }
 
 RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
@@ -459,21 +500,40 @@ RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
 	}
 	else
 	{
-		for (int i = 0; i < lightposn.size(); i++)
+		for (int i = 0; i < lights.size(); i++)
 		{
-			if (ShieldByAnyObject(scene, hitinfo, lightposn[i]))
+			if (IsInShadow(scene, hitinfo, lights[i]._lightpos))
 			{
 				continue;
 			}
 			else
 			{
 				//¼ÆËã¹âÔ´¹±Ï×
-				vec3 
+				float d = glm::distance(hitinfo._intersectPnt, lights[i]._lightpos);
+				float attn = 1.0f;
+				if (lights[i]._type == point)
+				{
+					attn = 1.0f / (lights[i]._attenuation[0] + lights[i]._attenuation[1]*d + lights[i]._attenuation[2]*d*d);
+				}
+				vec3 L = glm::normalize(lights[i]._lightpos - hitinfo._intersectPnt);
+				vec3 n = hitinfo._object->normal;
+				float nDotL = glm::dot(n,L);
+				vec3 lambert = hitinfo._object->diffuse * lights[i]._lightcolor * max(nDotL, 0.0f);
+				vec3 V = glm::normalize(-hitinfo._inray._direction);
+				vec3 H = glm::normalize(V + L);
+				float nDotH = glm::dot(n,H);
+				vec3 phong = hitinfo._object->specular * lights[i]._lightcolor * pow(max(nDotH, 0.0f), hitinfo._object->shininess);
+				vec3 total = hitinfo._object->ambient + hitinfo._object->emission + attn * (lambert + phong);
+
+				color.rgbRed += total[0] * 255;
+				color.rgbGreen += total[1]* 255;
+				color.rgbBlue += total[2] * 255;
 			}
 		}
 	}
 	return color;
 }
+
 
 FIBITMAP* Raytrace(const Camera &cam, const Scene &scene, int width, int height)
 {
@@ -507,7 +567,7 @@ int main(int argc, char* argv[]) {
 
 	Camera cam;
 	cam._eye = eyeinit; cam._center = center; cam._up = upinit; 
-	cam._fovy = fovy; cam._fovx = w * fovy / h;
+	cam._fovy = glm::radians(fovy); cam._fovx = glm::radians(w * fovy / h);
 	cam.orthogonalize();
 	Scene scene(objects);
 
