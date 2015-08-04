@@ -413,7 +413,7 @@ Ray RayThruPixel(const Camera &cam, int i, int j, int width, int height)
 	return ray;
 }
 
-bool IntersectWithTri(const Ray& ray, const object *obj, float &dist, vec3 pntintersect)
+bool IntersectWithTri(const Ray& ray, const object *obj, float &dist, vec3 &pntintersect)
 {
 	//先计算射线与平面的交点
 	vec3 vertA = vertexes[obj->verindex[0]];
@@ -421,8 +421,8 @@ bool IntersectWithTri(const Ray& ray, const object *obj, float &dist, vec3 pntin
 	vec3 vertC = vertexes[obj->verindex[2]];
 	vec3 v0 = vertC - vertA;
 	vec3 v1 = vertB - vertA;
-	vec3 n = glm::normalize(glm::cross(v0, v1));
-	float t = glm::dot(vertA, n) - glm::dot(ray._origin, n) / glm::dot(ray._direction, n);
+	vec3 n = glm::normalize(glm::cross(v1, v0));
+	float t = (glm::dot(vertA, n) - glm::dot(ray._origin, n)) / glm::dot(ray._direction, n);
 	vec3 p = ray._origin + t * ray._direction;
 
 	//重心法：判断点是否在三角形内部
@@ -492,6 +492,9 @@ bool IsInShadow(const Scene& scene, const IntersectionInfo &hitinfo, const vec3&
 RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
 {
 	RGBQUAD color;
+	color.rgbRed = 0;
+	color.rgbGreen = 0;
+	color.rgbBlue = 0;
 	if (hitinfo._object == NULL)
 	{
 		color.rgbRed = 0;
@@ -502,11 +505,11 @@ RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
 	{
 		for (int i = 0; i < lights.size(); i++)
 		{
-			if (IsInShadow(scene, hitinfo, lights[i]._lightpos))
-			{
-				continue;
-			}
-			else
+			//if (IsInShadow(scene, hitinfo, lights[i]._lightpos))
+			//{
+			//	continue;
+			//}
+			//else
 			{
 				//计算光源贡献
 				float d = glm::distance(hitinfo._intersectPnt, lights[i]._lightpos);
@@ -519,7 +522,7 @@ RGBQUAD FindColor(const Scene& scene, const IntersectionInfo &hitinfo)
 				vec3 n = hitinfo._object->normal;
 				float nDotL = glm::dot(n,L);
 				vec3 lambert = hitinfo._object->diffuse * lights[i]._lightcolor * max(nDotL, 0.0f);
-				vec3 V = glm::normalize(-hitinfo._inray._direction);
+				vec3 V = glm::normalize(hitinfo._inray._origin - hitinfo._intersectPnt);
 				vec3 H = glm::normalize(V + L);
 				float nDotH = glm::dot(n,H);
 				vec3 phong = hitinfo._object->specular * lights[i]._lightcolor * pow(max(nDotH, 0.0f), hitinfo._object->shininess);
