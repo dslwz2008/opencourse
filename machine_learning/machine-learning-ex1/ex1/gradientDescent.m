@@ -18,7 +18,9 @@ for iter = 1:num_iters
     %
 
 
-
+new1 = theta(1) - sum((X * theta - y) .* X(:, 1)) * alpha / m;
+new2 = theta(2) - sum((X * theta - y) .* X(:, 2)) * alpha / m;
+theta = [new1; new2];
 
 
 

@@ -17,6 +17,12 @@ for iter = 1:num_iters
     %       of the cost function (computeCostMulti) and gradient here.
     %
 
+numfeature = size(X,2)
+newtheta = theta
+for i=1:numfeature
+  newtheta(i) = theta(i) - sum((X * theta - y) .* X(:, i)) * alpha / m;
+endfor
+theta = newtheta;
 
 
 
