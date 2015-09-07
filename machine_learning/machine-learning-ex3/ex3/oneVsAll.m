@@ -49,7 +49,15 @@ X = [ones(m, 1) X];
 %                 initial_theta, options);
 %
 
-
+% recognize one class each time
+for k=1:num_labels
+    initial_theta = zeros(n + 1, 1);
+    options = optimset('GradObj', 'on', 'MaxIter', 50);
+    all_theta(k,:) = ...
+         fmincg (@(t)(lrCostFunction(t, X, (y == k), lambda)), ...
+                 initial_theta, options);
+             
+end
 
 
 
