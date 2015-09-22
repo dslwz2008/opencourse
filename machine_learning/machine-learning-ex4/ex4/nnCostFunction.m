@@ -62,22 +62,60 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% cost function
+extX = [ones(m,1) X];
+for i=1:m
+  a1 = extX(i,:)';
+  a2 = [1; sigmoid(Theta1 * a1)];
+  a3 = sigmoid(Theta2 * a2);
+  %size(a3)
+  yv = zeros(num_labels, 1);
+  yv(y(i)) = 1;
+  %size(yv)
+  J = J + sum(-yv.*log(a3) - (1-yv).*log(1-a3));
+end
+J = J / m;
 
+% regularized cost function
+tempT1 = Theta1(:,2:end);
+tempT2 = Theta2(:,2:end);
+reg = lambda*(sum(sum(tempT1.^2))+sum(sum(tempT2.^2)))/(2*m);
+J = J + reg;
 
+% backpropagation
+bigDelta1 = zeros(size(Theta1));
+bigDelta2 = zeros(size(Theta2));
 
+for t=1:m
+  a1 = extX(t,:)';
+  %fprintf('size of a1: %f\n',size(a1));
+  z2 = Theta1 * a1;
+  a2 = [1; sigmoid(z2)];
+  %fprintf('size of a2: %f\n',size(a2));
+  z3 = Theta2 * a2;
+  a3 = sigmoid(z3);
+  %fprintf('size of a3: %f\n',size(a3));
+  yv = zeros(num_labels, 1);
+  yv(y(t)) = 1;
+  delta3 = a3 - yv;
+  %fprintf('size of delta3: %f\n',size(delta3));
+  bigDelta2 = bigDelta2 + delta3 * a2';
+  
+  delta2 = Theta2' * delta3;
+  delta2 = delta2(2:end) .* sigmoidGradient(z2);
+  %fprintf('size of delta2: %f\n',size(delta2));
+  bigDelta1 = bigDelta1 + delta2 * a1';
+  
+end
 
+Theta1_grad = bigDelta1 / m;
+Theta2_grad = bigDelta2 / m;
 
-
-
-
-
-
-
-
-
-
-
-
+% regularization grad
+Theta1(:,1) = 0;
+Theta1_grad = Theta1_grad + lambda * Theta1 / m;
+Theta2(:,1) = 0;
+Theta2_grad = Theta2_grad + lambda * Theta2 / m;
 
 
 % -------------------------------------------------------------
