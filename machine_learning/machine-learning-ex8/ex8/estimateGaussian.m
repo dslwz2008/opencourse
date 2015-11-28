@@ -21,12 +21,10 @@ sigma2 = zeros(n, 1);
 %               should contain variance of the i-th feature.
 %
 
-
-
-
-
-
-
+% vectorized implementation
+mu = sum(X)/m;
+MU = ones(m,1)*mu;
+sigma2 = sum((X-MU).^2)/m;
 
 
 
