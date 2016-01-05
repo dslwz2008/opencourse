@@ -4,15 +4,18 @@
 import numpy as np
 import cv2
 
-def gaussianNoise(size, scale):
-    return np.random.normal(size=size)
-
 
 def main():
-    img = cv2.imread('data/messi5.jpg',1)
-    cropped = img[110:130,10:160]
+    img = cv2.imread('data/messi5.jpg',cv2.IMREAD_UNCHANGED)
+    noise = img.copy()
+    cv2.randn(noise,30,10)
+    imgNoised = img + noise
 
-    cv2.imshow('image',cropped)
+    cv2.namedWindow('raw', cv2.WINDOW_NORMAL)
+    cv2.imshow('raw', img)
+    cv2.namedWindow('test', cv2.WINDOW_NORMAL)
+    cv2.imshow('test', imgNoised)
+
     k = cv2.waitKey(0)
     if k == 27:         # wait for ESC key to exit
         cv2.destroyAllWindows()
