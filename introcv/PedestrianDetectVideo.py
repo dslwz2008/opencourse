@@ -18,6 +18,7 @@ CODEC = cv2.VideoWriter_fourcc('D','I','V','X') # MPEG-4 = MPEG-1
 
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+# hog.setSVMDetector(cv2.HOGDescriptor_getDaimlerPeopleDetector())
 
 cap = cv2.VideoCapture('data/768x576.avi')
 
